@@ -17,10 +17,11 @@ const fail=(m:string):never=>{throw new Error(m);};
 const num=(x:any,max=999)=>{if(!Number.isInteger(x)||x<0||x>max)fail('수량은 0~'+max+' 사이의 정수로 입력하세요.');return x;};
 const str=(x:any,n=80)=>{if(typeof x!=='string'||!x.trim()||x.trim().length>n)fail('내용을 1~'+n+'자로 입력하세요.');return x.trim();};
 export function reduce(s:any,a:any,actor:any){
+ const writeKey=String(actor.studentId||actor.role)+':'+a.requestId;if(a.requestId&&s.processedRequests?.includes(writeKey))return s;
  const teacher=actor.role==='teacher';const me=s.students.find((p:any)=>p.id===actor.studentId);const isTeacher=()=>{if(!teacher)fail('교사만 할 수 있습니다.');};
  const log=(text:string)=>{s.logs.unshift({id:rid(),text,at:new Date().toISOString()});s.logs=s.logs.slice(0,500);};
  const find=(id:string)=>s.students.find((p:any)=>p.id===id)||fail('학생을 찾을 수 없습니다.');
- if(a.type==='register'){if(s.students.length>=60)fail('한 방에 60명까지 참여할 수 있습니다.');if(s.students.some((p:any)=>p.name===a.name))fail('이미 사용 중인 별명입니다. 로그인해 주세요.');if(!s.nations.some((n:any)=>n.id===a.nationId))fail('지역을 선택하세요.');num(a.job,4);s.students.push({id:a.studentId,name:str(a.name,16),secret:a.secret,nationId:a.nationId,job:a.job,cards:[],coins:0,support:null});log(a.name+' 님이 참여했어요.');return s;}
+ if(a.type==='register'){if(s.students.length>=60)fail('한 방에 60명까지 참여할 수 있습니다.');if(s.students.some((p:any)=>p.studentNo===a.studentNo))fail('이미 등록한 번호입니다. 로그인해 주세요.');num(a.studentNo,99);if(a.studentNo<1)fail('학생 번호를 확인하세요.');if(!s.nations.some((n:any)=>n.id===a.nationId))fail('지역을 선택하세요.');num(a.job,4);s.students.push({id:a.studentId,name:str(a.name,16),studentNo:a.studentNo,secret:a.secret,nationId:a.nationId,job:a.job,cards:[],coins:0,support:null});log(a.name+' 님이 참여했어요.');return s;}
  if(a.type==='request'){
   if(!me)fail('학생으로 접속하세요.');const source=a.source;if(!['record','job','region','history','stamp','coins'].includes(source))fail('기록 종류를 확인하세요.');
   let proposal:any={id:rid(),studentId:me.id,source,note:str(a.note,160),status:'pending',round:s.round,at:new Date().toISOString()};
@@ -53,5 +54,5 @@ export function reduce(s:any,a:any,actor:any){
  else if(a.type==='settings'){isTeacher();s.title=str(a.title,40);s.threshold=num(a.threshold,9999);s.historyMin=num(a.historyMin,100);s.populationMin=num(a.populationMin,100);s.stampValue=num(a.stampValue,100);if(!Array.isArray(a.nations)||a.nations.length!==5)fail('다섯 지역을 입력하세요.');s.nations=s.nations.map((n:any,i:number)=>({...n,name:str(a.nations[i].name,24),resource:num(a.nations[i].resource,4)}));log('게임 규칙이 변경됐어요.');}
  else if(a.type==='profile'){if(!me)fail('학생으로 접속하세요.');if(!s.nations.some((n:any)=>n.id===a.nationId))fail('지역을 선택하세요.');if(me.cards.length&&!teacher)fail('카드가 있는 학생의 소속 변경은 교사에게 요청하세요.');me.nationId=a.nationId;me.job=num(a.job,4);}
  else fail('지원하지 않는 요청입니다.');
- return s;
+ if(a.requestId){s.processedRequests=[...(s.processedRequests||[]).slice(-999),writeKey];}return s;
 }

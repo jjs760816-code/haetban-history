@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {initial,reduce,score,publicState} from '../lib/game.ts';
 const s=initial('테스트'),teacher={role:'teacher'};
-for(let i=0;i<25;i++)reduce(s,{type:'register',name:'학생'+i,secret:'hidden',nationId:'n'+i%5,job:i%5,studentId:'p'+i},{});
+for(let i=0;i<25;i++)reduce(s,{type:'register',name:'학생'+i,studentNo:i+1,secret:'hidden',nationId:'n'+i%5,job:i%5,studentId:'p'+i},{});
 const actor={role:'student',studentId:'p0'};
 for(const a of [{source:'record',kind:'resource',resource:1,qty:4},{source:'history',name:'왕건',qty:2},{source:'coins',qty:10}]){reduce(s,{type:'request',note:'활동 확인',...a},actor);reduce(s,{type:'review',id:s.pending[0].id,approve:true},teacher);}
 assert.equal(score(s.students[0],s),12);assert.equal(s.students[0].coins,10);

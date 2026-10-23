@@ -17,9 +17,9 @@ export async function POST(req:Request){try{const body=await req.json() as any;
  if(['join','login'].includes(body.type)){
   const code=String(body.room||'').trim().toUpperCase();const row:any=await db().prepare('SELECT * FROM rooms WHERE code=?').bind(code).first();if(!row)throw new Error('방 코드나 로그인 정보를 확인하세요.');
   const s=JSON.parse(row.data);if(body.role==='teacher'){if(await secret(String(body.password),row.secret.split(':')[0])!==row.secret)throw new Error('방 코드나 로그인 정보를 확인하세요.');return reply({token:await token(code,'teacher',null),room:code});}
-  const name=String(body.name||'').trim();const password=String(body.password||'');if(password.length<6||password.length>100)throw new Error('개인 비밀번호는 6~100자로 입력하세요.');let p=s.students.find((p:any)=>p.name===name);
-  if(body.type==='join'){if(p)throw new Error('이미 등록한 별명입니다. 학생 로그인으로 들어오세요.');const studentId=rid(),sec=await secret(password);await mutate(code,x=>reduce(x,{type:'register',name,secret:sec,nationId:body.nationId,job:body.job,studentId},{}));p={id:studentId};}
-  else if(!p||await secret(password,p.secret.split(':')[0])!==p.secret)throw new Error('별명이나 개인 비밀번호를 확인하세요.');return reply({token:await token(code,'student',p.id),room:code});
+  const name=String(body.name||'').trim();const password=String(body.password||'');if(password.length<6||password.length>100)throw new Error('개인 비밀번호는 6~100자로 입력하세요.');if(!Number.isInteger(body.studentNo)||body.studentNo<1||body.studentNo>99)throw new Error('학생 번호는 1~99 사이로 입력하세요.');let p=s.students.find((p:any)=>p.studentNo===body.studentNo);
+  if(body.type==='join'){if(p)throw new Error('이미 등록한 번호입니다. 학생 로그인으로 들어오세요.');const studentId=rid(),sec=await secret(password);await mutate(code,x=>reduce(x,{type:'register',name,studentNo:body.studentNo,secret:sec,nationId:body.nationId,job:body.job,studentId},{}));p={id:studentId};}
+  else if(!p||p.name!==name||await secret(password,p.secret.split(':')[0])!==p.secret)throw new Error('이름·번호 또는 개인 비밀번호를 확인하세요.');return reply({token:await token(code,'student',p.id),room:code});
  }
  if(body.type==='info'){const code=String(body.room||'').trim().toUpperCase();const row:any=await db().prepare('SELECT data FROM rooms WHERE code=?').bind(code).first();if(!row)throw new Error('방 코드를 확인하세요.');const s=JSON.parse(row.data);return reply({title:s.title,era:s.era,nations:s.nations});}
  const auth:any=await session(req);if(!auth)return reply({error:'다시 로그인하세요.'},401);
