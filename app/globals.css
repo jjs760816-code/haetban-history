@@ -19,3 +19,5 @@
 .personal-warehouse{margin-top:28px;padding-top:24px;border-top:1px solid var(--border,#e4e6df)}#card-record-form{scroll-margin-top:24px}
 
 .card-recorder{margin-top:18px}.card-recorder>summary{display:block;text-align:center;cursor:pointer;border-radius:8px;padding:13px;min-height:44px}.card-recorder form{margin-top:18px}.collection-column{max-width:900px}
+
+.delete-card-control{padding:0;border:0}.delete-card-control>summary{padding:10px 14px;border-radius:8px;cursor:pointer}.delete-card-control p{font-size:13px}.delete-card-control[open]{padding:12px;border:1px solid var(--line)}

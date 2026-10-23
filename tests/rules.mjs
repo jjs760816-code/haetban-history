@@ -24,3 +24,17 @@ assert.throws(()=>reduce(s,{type:'currency',studentId:'p0',qty:9999,direction:-1
 assert.throws(()=>reduce(s,{type:'currency',studentId:'p0',qty:10,direction:1,note:'권한 확인'},actor));
 assert.equal(s.students[0].coins,balance+15);
 console.log('PASS: 교사 온 입출금·중복 저장 차단·잔액 부족 차단·학생 권한 차단·국력 점수 제외');
+const entryAction={type:'teacherCard',studentId:'p0',source:'record',kind:'history',name:'세종대왕',era:'joseon',stamps:2,qty:3,note:'교사 실물 확인',requestId:'teacher-card-test'};
+assert.throws(()=>reduce(s,entryAction,actor));
+const count=s.students[0].cards.length;
+reduce(s,entryAction,teacher);reduce(s,entryAction,teacher);
+assert.equal(s.students[0].cards.length,count+1);
+const added=s.students[0].cards.at(-1);assert.equal(added.name,'세종대왕');assert.equal(added.qty,3);assert.equal(s.pending[0].recordedBy,'teacher');assert.equal(s.pending[0].status,'approved');
+assert.throws(()=>reduce(s,{...entryAction,requestId:'bad-name',name:' '},teacher));
+reduce(s,{type:'transfer',to:'p1',cardId:added.id,qty:1,price:0},actor);
+assert.throws(()=>reduce(s,{type:'deleteCard',studentId:'p0',cardId:added.id},actor));
+reduce(s,{type:'deleteCard',studentId:'p0',cardId:added.id,requestId:'delete-test'},teacher);
+assert.equal(s.students[0].cards.some(c=>c.id===added.id),false);assert.equal(s.deletedCards[0].card.name,'세종대왕');assert.equal(s.pending[0].status,'expired');
+reduce(s,{type:'deleteCard',studentId:'p0',cardId:added.id,requestId:'delete-test'},teacher);
+reduce(s,{type:'teacherCard',studentId:'p1',source:'record',kind:'resource',resource:4,qty:2,note:'자원 지급'},teacher);assert.equal(s.students[1].cards.at(-1).name,'식량');
+console.log('PASS: 교사 카드 대리 등록·삭제·중복 방지·이름 필수·학생 권한 차단·거래 종료·삭제 이력 보존');
