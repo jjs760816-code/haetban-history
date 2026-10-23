@@ -9,3 +9,4 @@
 @media(min-width:801px) and (max-width:1200px){.content{padding:24px 20px}.sidebar{width:180px}.workspace{margin-left:180px;width:calc(100% - 180px)}.sidebar .brand{font-size:15px}.page-heading h1{font-size:25px}.two-column{grid-template-columns:1fr 1fr;gap:15px}.topbar{padding:0 20px}.topbar>span{font-size:10px}.topbar>div{font-size:9px}.primary,.secondary{padding:10px 12px}}
 .mode-tabs button{min-height:44px;padding:8px 0}.sidebar nav button{min-height:44px}.topbar .text-button{min-height:44px}.mode-tabs{gap:12px}.topbar{min-height:48px}
 @media(max-width:800px){.topbar{height:48px}.sidebar nav button{min-height:44px}}
+.era-modal{max-width:500px;background:#fffdf7;border-radius:18px;padding:30px;box-shadow:0 25px 90px #0003}.era-modal p{color:var(--muted);font-size:13px;line-height:1.9}.era-modal .actions{margin-top:23px;justify-content:flex-end}
