@@ -14,3 +14,13 @@ assert.equal(s.students[0].cards[0].qty,3);assert.equal(s.students[1].cards[0].q
 assert.throws(()=>reduce(s,{type:'settings'},actor));
 const before=score(s.students[0],s);reduce(s,{type:'era',era:'occupation'},teacher);assert.equal(s.leaderId,null);assert.equal(s.students[0].support,null);assert.equal(score(s.students[0],s),before);assert.equal(s.students[0].coins,10);assert.equal(s.snapshots.length,1);assert.equal(publicState(s).students[0].secret,undefined);
 console.log('PASS: 25명 등록 · 카드 승인 · 중복 승인 차단 · 온 점수 제외 · 지지 소유권 보존 · 쌍방 확인 거래 · 권한 분리 · 시대 전환 보존');
+const balance=s.students[0].coins,power=score(s.students[0],s),rows=s.pending.length;
+const income={type:'currency',studentId:'p0',qty:20,direction:1,note:'직업 활동 수당',requestId:'wallet-income'};
+reduce(s,income,teacher);reduce(s,income,teacher);
+assert.equal(s.students[0].coins,balance+20);assert.equal(s.pending.length,rows+1);assert.equal(score(s.students[0],s),power);
+reduce(s,{type:'currency',studentId:'p0',qty:5,direction:-1,note:'실물 카드 구입'},teacher);
+assert.equal(s.students[0].coins,balance+15);
+assert.throws(()=>reduce(s,{type:'currency',studentId:'p0',qty:9999,direction:-1,note:'초과 지출'},teacher));
+assert.throws(()=>reduce(s,{type:'currency',studentId:'p0',qty:10,direction:1,note:'권한 확인'},actor));
+assert.equal(s.students[0].coins,balance+15);
+console.log('PASS: 교사 온 입출금·중복 저장 차단·잔액 부족 차단·학생 권한 차단·국력 점수 제외');
